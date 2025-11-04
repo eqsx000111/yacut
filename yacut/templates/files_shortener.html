@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+<main>
+    <section class="container my-5 px-4">
+      <h1 class="text-center"><span style="color:red">Ya</span>Cut</h1>
+      <p class="text-center my-4">
+        Загрузите файлы и получите на них короткие ссылки
+      </p>
+
+      <div class="container">
+        <div class="row my-3">
+          <div class="col-sm">
+          </div>
+          <div class="col-sm">
+            <form method="POST", novalidate, enctype="multipart/form-data">
+              
+              {{ form.csrf_token }}
+              <div>
+                <div>
+                    {{ form.files(class="form-control", ) }}
+                  <p><span style="color:red">{% if form.files.errors %}
+                    {% for error in form.files.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  {% endif %}</span></p>
+                </div>
+                <div>
+                  <p><span style="color:red">
+                    {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+              {% endif %}
+              {% endwith %}
+                  </span></p>
+                </div>
+                {{ form.submit(type="submit", class="btn btn-primary", value="Загрузить") }}
+              </div>
+            </form>
+          </div>
+          <div class="col-sm">
+          </div>
+        </div>
+      </div>
+
+      {% if files_info %}
+        <div class="container mt-4">
+            <div class="row justify-content-center">
+                <div class="col-sm-5 text-center">
+                    <ul class="list-group list-group-flush mt-3">
+                        {% for file in files_info %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>{{ file.name }}</span>
+                                <a href="{{ file.short_url }}" target="_blank">{{ file.short_url }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+            <img class="img-fluid mx-auto d-block" src="{{ image_url }}">
+          </p>
+            </h5>
+            </p>
+          </div>
+          <div class="col-sm">
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+  {% endblock content %}

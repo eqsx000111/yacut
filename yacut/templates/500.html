@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+  <section class="container my-5 text-center">
+    <h1 class="display-4 text-danger">500</h1>
+    <h3>Внутренняя ошибка сервера</h3>
+    <p class="lead">Произошла ошибка на сервере. Пожалуйста, попробуйте позже.</p>
+    <a href="{{ url_for('url_shortener') }}" class="btn btn-primary mt-3">Вернуться на главную</a>
+  </section>
+</main>
+{% endblock content %}

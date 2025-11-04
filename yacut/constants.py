@@ -1,0 +1,2 @@
+FORBIDDEN_LINK = 'files'
+LENGTH = 6
