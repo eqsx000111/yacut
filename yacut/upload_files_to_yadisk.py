@@ -17,13 +17,12 @@ AUTH_HEADERS = {'Authorization': f'OAuth {DISK_TOKEN}'}
 
 async def upload_files_to_yandex_disk(files):
     if not files:
-        tasks = []
-    tasks = []
+        return []
     async with aiohttp.ClientSession() as session:
-        for file in files:
-            tasks.append(
-                asyncio.create_task(upload_file_and_get_url(session, file))
-            )
+        tasks = [
+            asyncio.create_task(upload_file_and_get_url(session, file))
+            for file in files
+        ]
         urls = await asyncio.gather(*tasks)
     return urls
 
@@ -42,7 +41,7 @@ async def upload_file_and_get_url(session, file):
         upload_href = data.get('href')
         if not upload_href:
             raise Exception(f'Ошибка получения upload URL: {data}')
-
+    file.stream.seek(0)
     async with session.put(upload_href, data=file.read()) as upload_resp:
         if upload_resp.status not in (201, 202):
             raise Exception(f'Ошибка загрузки: {upload_resp.status}')
