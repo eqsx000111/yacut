@@ -25,7 +25,6 @@ async def upload_files_to_yandex_disk(files):
                 asyncio.create_task(upload_file_and_get_url(session, file))
             )
         urls = await asyncio.gather(*tasks)
-
     return urls
 
 
@@ -54,13 +53,10 @@ async def upload_file_and_get_url(session, file):
             )
         location = urllib.parse.unquote(location)
         location = location.replace('/disk', '')
-        print(location)
     return location
 
 
 async def get_download_link(file_url):
-
-    print('in finc')
     async with aiohttp.ClientSession() as session:
         async with session.get(
             url=DOWNLOAD_URL,
@@ -70,5 +66,4 @@ async def get_download_link(file_url):
             link = await resp.json()
             if 'href' not in link:
                 raise Exception(f'Ошибка получения download link: {link}')
-            print(link)
             return link['href']

@@ -12,7 +12,7 @@ def get_short_url():
     data = request.get_json()
     if not data or 'url' not in data:
         raise InvalidAPIUsage(
-            'В запросе отсутствует обязательное поле - "url".'
+            '"url" является обязательным полем!'
         )
     if 'custom_id' not in data or not data['custom_id']:
         short = generate_short_url()
@@ -23,7 +23,13 @@ def get_short_url():
         if FORBIDDEN_LINK in short or URLMap.query.filter_by(
             short=short
         ).first():
-            raise InvalidAPIUsage('Короткая ссылка занята или не доступна.')
+            raise InvalidAPIUsage(
+                'Предложенный вариант короткой ссылки уже существует.'
+            )
+        elif len(short) > 16:
+            raise InvalidAPIUsage(
+                'Указано недопустимое имя для короткой ссылки.'
+            )
 
     link = URLMap(original=data['url'], short=short)
     db.session.add(link)
@@ -38,7 +44,7 @@ def get_short_url():
     }), 201
 
 
-@app.route('/api/id/<int:short_id>', methods=['GET'])
+@app.route('/api/id/<int:short_id>/', methods=['GET'])
 def get_full_url(short_id):
     full_url = URLMap.query.get(short_id)
     if not full_url:

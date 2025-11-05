@@ -27,7 +27,7 @@ def url_shortener():
         ):
             flash(
                 'Предложенный вариант короткой ссылки '
-                'уже существует или запрещен.'
+                'уже существует.'
             )
             return render_template('url_shortener.html', form=form)
         if not custom_link:
