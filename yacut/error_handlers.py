@@ -1,4 +1,5 @@
 from http import HTTPStatus
+
 from flask import flash, jsonify, redirect, render_template, request, url_for
 
 from . import app, db
@@ -7,11 +8,8 @@ from . import app, db
 class InvalidAPIUsage(Exception):
 
     def __init__(self, message, status_code=HTTPStatus.BAD_REQUEST):
-        super().__init__()
         self.message = message
         self.status_code = status_code
-        if status_code is not HTTPStatus.BAD_REQUEST:
-            self.status_code = status_code
 
     def to_dict(self):
         return dict(message=self.message)
@@ -38,11 +36,4 @@ def internal_error(error):
 
 
 class YandexDiskError(Exception):
-    def __init__(self, message, status_code=None):
-        super().__init__()
-        self.message = message
-        if status_code is not HTTPStatus.BAD_REQUEST:
-            self.status_code = status_code
-
-    def to_dict(self):
-        return {'message': self.message}
+    pass

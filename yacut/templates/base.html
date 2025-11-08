@@ -13,16 +13,16 @@
 </head>
 
 <body>
-    {% include "header.html" %}
-    {% with messages = get_flashed_messages() %}
-  {% if messages %}
-    {% for message in messages %}
-      {{ message }}
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-    {% block content %}{% endblock content %}
-    {% include "footer.html" %}
+  {% include "header.html" %}
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        {{ message }}
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock content %}
+  {% include "footer.html" %}
 </body>
 
 <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>

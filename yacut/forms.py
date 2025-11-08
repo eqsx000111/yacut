@@ -12,30 +12,32 @@ from wtforms.validators import (
 from .constants import (
     FORBIDDEN_SHORT,
     ORIGINAL_LINK_MAX_LENGTH,
-    REG_EXPR,
-    USER_CUSTOM_ID_MAX_LENGTH,
+    SHORT_REG_EXPR,
+    USER_SHORT_MAX_LENGTH,
 )
 from .models import URLMap
 
-EXIST_SHORT_TEXT = 'Предложенный вариант короткой ссылки уже существует.'
-INVALID_CHAR_IN_SHORT_TEXT = (
+EXIST_SHORT = 'Предложенный вариант короткой ссылки уже существует.'
+INVALID_CHAR_IN_SHORT = (
     'Для данного поля допустимо использование только латинских букв '
     '(верхнего и нижнего регистра) и цифр.'
 )
 REQUIRED_FIELD = 'Обязательное поле'
+ORIGINAL_LINK = 'Длинная ссылка'
+SHORT = 'Ваш вариант короткой ссылки'
 
 
 class ShortUrlForm(FlaskForm):
     original_link = URLField(
-        'Длинная ссылка',
+        ORIGINAL_LINK,
         validators=[DataRequired(message=REQUIRED_FIELD),
                     Length(max=ORIGINAL_LINK_MAX_LENGTH)]
     )
     custom_id = URLField(
-        'Ваш вариант короткой ссылки',
+        SHORT,
         validators=[
-            Length(max=USER_CUSTOM_ID_MAX_LENGTH),
-            Regexp(REG_EXPR, message=INVALID_CHAR_IN_SHORT_TEXT),
+            Length(max=USER_SHORT_MAX_LENGTH),
+            Regexp(SHORT_REG_EXPR, message=INVALID_CHAR_IN_SHORT),
             Optional()
         ]
     )
@@ -43,10 +45,10 @@ class ShortUrlForm(FlaskForm):
 
     def validate_custom_id(self, field):
         if field.data:
-            if FORBIDDEN_SHORT in field.data:
-                raise ValidationError(EXIST_SHORT_TEXT)
-            if URLMap.get_by_short(field.data):
-                raise ValidationError(EXIST_SHORT_TEXT)
+            if field.data in FORBIDDEN_SHORT or URLMap.get(
+                field.data
+            ):
+                raise ValidationError(EXIST_SHORT)
 
 
 class FilesShortUrlForm(FlaskForm):

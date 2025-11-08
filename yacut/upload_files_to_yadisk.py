@@ -19,6 +19,7 @@ GET_UPLOAD_URL_ERROR_TEXT = 'Ошибка получения upload URL: '
 UPLOAD_ERROR_TEXT = 'Ошибка загрузки: '
 NO_LOCATION_HEADER_TEXT = 'Нет заголовка Location в ответе при загрузке файла!'
 DOWNLOAD_LINK_ERROR_TEXT = 'Ошибка получения download link: '
+TEMPLATE_ERROR = '{error} {data}'
 
 
 async def upload_files_to_yandex_disk(files):
@@ -44,11 +45,21 @@ async def upload_file_and_get_url(session, file):
         data = await response.json()
         upload_href = data.get('href')
         if not upload_href:
-            raise YandexDiskError(f'{GET_UPLOAD_URL_ERROR_TEXT} {data}')
+            raise YandexDiskError(
+                TEMPLATE_ERROR.format(
+                    error=GET_UPLOAD_URL_ERROR_TEXT,
+                    data=data
+                )
+            )
     file.stream.seek(0)
     async with session.put(upload_href, data=file.read()) as upload_resp:
         if upload_resp.status not in (201, 202):
-            raise YandexDiskError(f'{UPLOAD_ERROR_TEXT} {upload_resp.status}')
+            raise YandexDiskError(
+                TEMPLATE_ERROR.format(
+                    error=UPLOAD_ERROR_TEXT,
+                    data=upload_resp.status
+                )
+            )
         location = upload_resp.headers.get('Location')
         if not location:
             raise YandexDiskError(
@@ -68,5 +79,10 @@ async def get_download_link(file_url):
         ) as resp:
             link = await resp.json()
             if 'href' not in link:
-                raise YandexDiskError(f'{DOWNLOAD_LINK_ERROR_TEXT} {link}')
+                raise YandexDiskError(
+                    TEMPLATE_ERROR.format(
+                        error=DOWNLOAD_LINK_ERROR_TEXT,
+                        data=link
+                    )
+                )
             return link['href']

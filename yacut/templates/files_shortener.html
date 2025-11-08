@@ -17,21 +17,22 @@
               {{ form.csrf_token }}
               <div>
                 <div>
-                    {{ form.files(class="form-control", ) }}
-                  <p><span style="color:red">{% if form.files.errors %}
-                    {% for error in form.files.errors %}
-                      {{ error }}
-                    {% endfor %}
-                  {% endif %}</span></p>
+                  {{ form.files(class="form-control", ) }}
+                    <p><span style="color:red">
+                    {% if form.files.errors %}
+                      {% for error in form.files.errors %}
+                        {{ error }}
+                      {% endfor %}
+                    {% endif %}</span></p>
                 </div>
                 {{ form.submit(type="submit", class="btn btn-primary", value="Загрузить") }}
               </div>
             </form>
           </div>
           <div class="col-sm">
-          </div>
         </div>
       </div>
+    </div>
 
       {% if files_info %}
         <div class="container mt-4">
@@ -39,16 +40,16 @@
                 <div class="col-sm-5 text-center">
                     <ul class="list-group list-group-flush mt-3">
                         {% for file in files_info %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>{{ file.name }}</span>
-                                <a href="{{ file.short_url }}" target="_blank">{{ file.short_url }}</a>
-                            </li>
+                          <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ file.name }}</span>
+                              <a href="{{ file.short_url }}" target="_blank">{{ file.short_url }}</a>
+                          </li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
         </div>
-        {% endif %}
+      {% endif %}
             <img class="img-fluid mx-auto d-block" src="{{ image_url }}">
           </p>
             </h5>
