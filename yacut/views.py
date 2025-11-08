@@ -1,14 +1,14 @@
-from flask import flash, redirect, render_template
-
 from http import HTTPStatus
+
+from flask import flash, redirect, render_template
 
 from . import app
 from .error_handlers import InvalidAPIUsage
 from .forms import FilesShortUrlForm, ShortUrlForm
 from .models import URLMap
 from .upload_files_to_yadisk import (
+    get_download_link,
     upload_files_to_yandex_disk,
-    get_download_link
 )
 
 UPLOAD_ERROR_TEXT = 'Ошибка при загрузке файлов:'

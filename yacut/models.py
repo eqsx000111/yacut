@@ -6,16 +6,15 @@ import re
 from flask import url_for
 
 from . import db
-
 from .constants import (
     ALLOWED_CHARS,
     AUTO_GENERATE_SHORT_MAX_LENGTH,
     FORBIDDEN_SHORT,
     MAX_SHORT_GENERATION_ATTEMPTS,
     ORIGINAL_LINK_MAX_LENGTH,
+    REDIRECT_VIEW,
     SHORT_REG_EXPR,
     USER_SHORT_MAX_LENGTH,
-    REDIRECT_VIEW
 )
 from .error_handlers import InvalidAPIUsage
 

@@ -1,7 +1,7 @@
 import re
 import string
 
-FORBIDDEN_SHORT = ['files']
+FORBIDDEN_SHORT = ['files', 'filess', 'filesss', 'filessss']
 AUTO_GENERATE_SHORT_MAX_LENGTH = 6
 ALLOWED_CHARS = string.ascii_letters + string.digits
 SHORT_REG_EXPR = fr'^[{re.escape(ALLOWED_CHARS)}]+$'
