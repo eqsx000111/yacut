@@ -16,13 +16,10 @@ DOWNLOAD_URL = f'{API_HOST}{API_VERSION}/disk/resources/download'
 load_dotenv()
 AUTH_HEADERS = {'Authorization': f'OAuth {os.getenv("DISK_TOKEN")}'}
 
-GET_UPLOAD_URL_ERROR_TEXT = 'Ошибка получения upload URL: '
-UPLOAD_ERROR_TEXT = 'Ошибка загрузки: '
 NO_LOCATION_HEADER_TEXT = 'Нет заголовка Location в ответе при загрузке файла!'
-DOWNLOAD_LINK_ERROR_TEXT = 'Ошибка получения download link: '
-GET_UPLOAD_URL_ERROR_FULL = f'{GET_UPLOAD_URL_ERROR_TEXT} {{data}}'
-UPLOAD_ERROR_FULL = f'{UPLOAD_ERROR_TEXT} {{status}}'
-DOWNLOAD_LINK_ERROR_FULL = f'{DOWNLOAD_LINK_ERROR_TEXT} {{link}}'
+GET_UPLOAD_URL_ERROR = 'Ошибка получения upload URL: {{data}}'
+UPLOAD_ERROR = 'Ошибка загрузки: {{status}}'
+DOWNLOAD_LINK_ERROR = 'Ошибка получения download link: {{link}}'
 
 
 async def upload_files_to_yandex_disk(files):
@@ -39,7 +36,7 @@ async def upload_files_to_yandex_disk(files):
                 upload_href = data.get('href')
                 if not upload_href:
                     raise YandexDiskError(
-                        GET_UPLOAD_URL_ERROR_FULL.format(data=data)
+                        GET_UPLOAD_URL_ERROR.format(data=data)
                     )
             file.stream.seek(0)
             async with session.put(
@@ -51,7 +48,7 @@ async def upload_files_to_yandex_disk(files):
                     HTTPStatus.ACCEPTED
                 ):
                     raise YandexDiskError(
-                        UPLOAD_ERROR_FULL.format(status=upload_resp.status)
+                        UPLOAD_ERROR.format(status=upload_resp.status)
                     )
                 location = upload_resp.headers.get('Location')
                 if not location:
@@ -66,7 +63,7 @@ async def upload_files_to_yandex_disk(files):
                 link = await download_resp.json()
                 if 'href' not in link:
                     raise YandexDiskError(
-                        DOWNLOAD_LINK_ERROR_FULL.format(link=link)
+                        DOWNLOAD_LINK_ERROR.format(link=link)
                     )
                 return link['href']
         tasks = [asyncio.create_task(

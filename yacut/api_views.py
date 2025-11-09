@@ -4,7 +4,6 @@ from flask import jsonify, request
 
 from . import app
 from .error_handlers import InvalidAPIUsage
-from .errors import ShortUrlError
 from .models import URLMap
 
 NO_DATA_TEXT = 'Отсутствует тело запроса'
@@ -25,7 +24,7 @@ def create_short_url_api():
             original=data['url'],
             short=data.get('custom_id')
         )
-    except ShortUrlError as e:
+    except URLMap.ShortUrlError as e:
         raise InvalidAPIUsage(str(e))
     return jsonify(
         {'url': data['url'], 'short_link': url_map.get_short_url()}

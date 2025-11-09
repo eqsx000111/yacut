@@ -2,7 +2,6 @@ from flask import flash, redirect, render_template
 
 from . import app
 from .error_handlers import InvalidAPIUsage
-from .errors import ShortUrlError
 from .forms import FilesShortUrlForm, ShortUrlForm
 from .models import URLMap
 from .upload_files_to_yadisk import (
@@ -23,10 +22,10 @@ def url_shortener():
         url_map = URLMap.create(
             original=form.original_link.data,
             short=form.custom_id.data,
-            validate_short=True,
-            validate_original=True
+            validate_short=False,
+            validate_original=False
         )
-    except ShortUrlError as e:
+    except URLMap.ShortUrlError as e:
         raise InvalidAPIUsage(str(e))
     return render_template(
         'index.html',
@@ -52,13 +51,13 @@ async def files_shortener():
                 'short_url': URLMap.create(
                     original=original_url,
                     short=None,
-                    validate_short=True,
-                    validate_original=True
+                    validate_short=False,
+                    validate_original=False
                 ).get_short_url()
             }
             for file_obj, original_url in zip(form.files.data, urls)
         ]
-    except ShortUrlError as e:
+    except URLMap.ShortUrlError as e:
         raise InvalidAPIUsage(str(e))
     return render_template(
         'files_shortener.html',
