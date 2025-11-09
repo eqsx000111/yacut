@@ -10,7 +10,7 @@ from wtforms.validators import (
 )
 
 from .constants import (
-    FORBIDDEN_SHORT,
+    FORBIDDEN_SHORTS,
     ORIGINAL_LINK_MAX_LENGTH,
     SHORT_REG_EXPR,
     USER_SHORT_MAX_LENGTH,
@@ -44,11 +44,10 @@ class ShortUrlForm(FlaskForm):
     submit = SubmitField()
 
     def validate_custom_id(self, field):
-        if field.data:
-            if field.data in FORBIDDEN_SHORT or URLMap.get(
-                field.data
-            ):
-                raise ValidationError(EXIST_SHORT)
+        if field.data and (field.data in FORBIDDEN_SHORTS or URLMap.get(
+            field.data)
+        ):
+            raise ValidationError(EXIST_SHORT)
 
 
 class FilesShortUrlForm(FlaskForm):

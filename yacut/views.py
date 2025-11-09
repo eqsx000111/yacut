@@ -1,13 +1,11 @@
-from http import HTTPStatus
-
 from flask import flash, redirect, render_template
 
 from . import app
 from .error_handlers import InvalidAPIUsage
+from .errors import ShortUrlError
 from .forms import FilesShortUrlForm, ShortUrlForm
 from .models import URLMap
 from .upload_files_to_yadisk import (
-    get_download_link,
     upload_files_to_yandex_disk,
 )
 
@@ -22,22 +20,14 @@ def url_shortener():
     if not form.validate_on_submit():
         return render_template('index.html', form=form)
     try:
-        print('try')
         url_map = URLMap.create(
             original=form.original_link.data,
             short=form.custom_id.data,
-            from_form=True
+            validate_short=True,
+            validate_original=True
         )
-    except Exception as validation_error:
-        raise validation_error
-    except Exception as unexpected_error:
-        raise InvalidAPIUsage(
-            '{error} {data}'.format(
-                error=UNEXPECTED_ERROR,
-                data=unexpected_error
-            ),
-            HTTPStatus.INTERNAL_SERVER_ERROR
-        )
+    except ShortUrlError as e:
+        raise InvalidAPIUsage(str(e))
     return render_template(
         'index.html',
         form=form,
@@ -52,31 +42,24 @@ async def files_shortener():
         return render_template('files_shortener.html', form=form)
     try:
         urls = await upload_files_to_yandex_disk(form.files.data)
-    except Exception as e:
-        flash(f'{UPLOAD_ERROR_TEXT} {e}', 'danger')
+    except Exception:
+        flash(UPLOAD_ERROR_TEXT, 'danger')
         return render_template('files_shortener.html', form=form)
     try:
         files_info = [
             {
                 'name': file_obj.filename,
                 'short_url': URLMap.create(
-                    original=await get_download_link(original_url),
+                    original=original_url,
                     short=None,
-                    from_form=True
+                    validate_short=True,
+                    validate_original=True
                 ).get_short_url()
             }
             for file_obj, original_url in zip(form.files.data, urls)
         ]
-    except Exception as validation_error:
-        raise validation_error
-    except Exception as unexpected_error:
-        raise InvalidAPIUsage(
-            '{error} {data}'.format(
-                error=UNEXPECTED_ERROR,
-                data=unexpected_error
-            ),
-            HTTPStatus.INTERNAL_SERVER_ERROR
-        )
+    except ShortUrlError as e:
+        raise InvalidAPIUsage(str(e))
     return render_template(
         'files_shortener.html',
         form=form,
@@ -86,4 +69,4 @@ async def files_shortener():
 
 @app.route('/<short>')
 def redirect_view(short):
-    return redirect(URLMap.get_or_404(short=short).original)
+    return redirect(URLMap.get(short=short, raise_404=True).original)

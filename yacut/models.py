@@ -9,15 +9,16 @@ from . import db
 from .constants import (
     ALLOWED_CHARS,
     AUTO_GENERATE_SHORT_MAX_LENGTH,
-    FORBIDDEN_SHORT,
+    FORBIDDEN_SHORTS,
     MAX_SHORT_GENERATION_ATTEMPTS,
     ORIGINAL_LINK_MAX_LENGTH,
     REDIRECT_VIEW,
     SHORT_REG_EXPR,
     USER_SHORT_MAX_LENGTH,
 )
-from .error_handlers import InvalidAPIUsage
+from .errors import ShortUrlError
 
+INVALID_ORIGINAL_URL_TEXT = 'Указано недопустимое имя для длинной ссылки'
 INVALID_SHORT_TEXT = 'Указано недопустимое имя для короткой ссылки'
 SHORT_EXIST_TEXT = 'Предложенный вариант короткой ссылки уже существует.'
 CANT_GENERATE_UNIQUE_SHORT = (
@@ -36,26 +37,27 @@ class URLMap(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     @staticmethod
-    def get(short):
-        return URLMap.query.filter_by(short=short).first()
+    def get(short, raise_404=False):
+        query = URLMap.query.filter_by(short=short)
+        if raise_404:
+            return query.first_or_404()
+        return query.first()
 
     @staticmethod
-    def get_or_404(short):
-        return URLMap.query.filter_by(short=short).first_or_404()
-
-    @staticmethod
-    def create(original, short, from_form=False):
+    def create(original, short, validate_short=False, validate_original=False):
+        if not validate_original and len(original) > ORIGINAL_LINK_MAX_LENGTH:
+            raise ShortUrlError(INVALID_ORIGINAL_URL_TEXT)
         if short:
-            if not from_form:
-                if short in FORBIDDEN_SHORT or URLMap.get(short):
-                    raise InvalidAPIUsage(
-                        SHORT_EXIST_TEXT
-                    )
+            if not validate_short:
                 if len(short) > USER_SHORT_MAX_LENGTH or not re.fullmatch(
                     SHORT_REG_EXPR, short
                 ):
-                    raise InvalidAPIUsage(
+                    raise ShortUrlError(
                         INVALID_SHORT_TEXT
+                    )
+                if short in FORBIDDEN_SHORTS or URLMap.get(short):
+                    raise ShortUrlError(
+                        SHORT_EXIST_TEXT
                     )
         else:
             short = URLMap.generate_unique_short()
@@ -74,7 +76,7 @@ class URLMap(db.Model):
             ))
             if not URLMap.get(short):
                 return short
-        raise InvalidAPIUsage(
+        raise ShortUrlError(
             CANT_GENERATE_UNIQUE_SHORT,
             HTTPStatus.INTERNAL_SERVER_ERROR
         )
